@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  php-apache:
+    build: .
+    container_name: php_app
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0  # Or use 'mariadb:latest' for MariaDB
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+volumes:
+  mysql_data:
