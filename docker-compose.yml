@@ -1,28 +1,38 @@
 version: '3.8'
-services:
-  php-apache:
-    build: .
-    container_name: php_app
-    ports:
-      - "8080:80"
-    volumes:
-      - .:/var/www/html
-    depends_on:
-      - mysql
 
-  mysql:
-    image: mysql:8.0  # Or use 'mariadb:latest' for MariaDB
-    container_name: mysql_db
+services:
+  opensis-ui:
+    image: opensis-image
+    container_name: opensis-ui
+    ports:
+      - "8081:80"
+    networks:
+      - opensis-network
     restart: always
+    depends_on:
+      - opensis-db
+
+  opensis-db:
+    image: mariadb:10.5
+    container_name: opensis-db
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: mypassword
+      MYSQL_ROOT_PASSWORD: your_strong_password_here
+      MYSQL_DATABASE: openSIS  # This is optional since you are creating it normally in init.sql
+      MYSQL_USER: openSIS_rw
+      MYSQL_PASSWORD: 'Op3nS!S'
     volumes:
-      - mysql_data:/var/lib/mysql
+      - opensis-db-data:/var/lib/mysql
+      - ./MYSQL/mysql-config/strict_mode.cnf:/etc/mysql/conf.d/strict_mode.cnf
+      - ./MYSQL/mysql-init/init-opensis.sql:/docker-entrypoint-initdb.d/init.sql  # Mount the SQL script
     ports:
       - "3306:3306"
+    networks:
+      - opensis-network
+    restart: always
 
 volumes:
-  mysql_data:
+  opensis-db-data:
+
+networks:
+  opensis-network:
+    driver: bridge
